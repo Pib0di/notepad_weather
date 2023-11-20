@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:notepad_weather/features/create_note/create_note.dart';
 import 'package:notepad_weather/features/home_page/service/home_page_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -35,7 +36,12 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const CreateNote()),
+          );
+        },
         child: const Icon(Icons.add),
       ),
       body: ListView.builder(
