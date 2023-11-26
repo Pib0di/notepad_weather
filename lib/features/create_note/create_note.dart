@@ -18,10 +18,11 @@ class _CreateNoteState extends State<CreateNote> {
   @override
   void initState() {
     super.initState();
-    createNoteService.init();
+    createNoteService.init(context);
 
     textController = createNoteService.textController;
-    textController.text = " 🧭 🏳️\u200d🌈 a;sldkfj  🧭 🏳️\u200d🌈";
+    textController.text =
+        " 🧭 🏳️\u200d🌈 a;sldkfj  🧭 🏳️\u200d🌈 \n asdflkajsd;lfk jas;dlfk jas;dlf jas;ldf kja'sl";
   }
 
   @override
@@ -64,7 +65,7 @@ class _CreateNoteState extends State<CreateNote> {
               if (pickedImage != null) {
                 setState(() {
                   createNoteService.addImage(
-                    File(pickedImage.path)!,
+                    File(pickedImage.path),
                   );
                 });
               } else {
