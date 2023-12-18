@@ -15,7 +15,6 @@ class ViewDate extends StatefulWidget {
 class _ViewDateState extends State<ViewDate> {
   late Dio dio;
   late Weather weather;
-  // late WeatherCurrentDay weatherCurrentDay;
 
   @override
   void initState() {
@@ -26,7 +25,7 @@ class _ViewDateState extends State<ViewDate> {
 
   @override
   Widget build(BuildContext context) {
-    final Date date = ModalRoute.of(context)!.settings.arguments as Date;
+    final date = ModalRoute.of(context)!.settings.arguments as Date;
 
     return Scaffold(
       backgroundColor: const Color(0xFF282E45),
@@ -65,8 +64,8 @@ class _ViewDateState extends State<ViewDate> {
                 future: weather.getWeatherCurrentDay(
                   12,
                   12,
-                  "temperature_2m,cloud_cover_high,uv_index",
-                  "jma_seamless",
+                  'temperature_2m,cloud_cover_high,uv_index',
+                  'jma_seamless',
                   1,
                 ),
                 builder: (context, snapshot) {
@@ -85,13 +84,13 @@ class _ViewDateState extends State<ViewDate> {
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 12.0),
                 child: Text(
-                  "Вы не оставляли заметок на этот день...",
+                  'Вы не оставляли заметок на этот день...',
                   style: TextStyle(
                     color: Colors.white70,
                     fontSize: 23,
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ],

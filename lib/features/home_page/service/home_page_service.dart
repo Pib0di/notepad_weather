@@ -1,13 +1,30 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:notepad_weather/features/home_page/widget/card_month.dart';
-import 'package:notepad_weather/features/view_date/view_date.dart';
+import 'package:notepad_weather/features/home_page/widget/date_block.dart';
+import 'package:notepad_weather/generated/assets.dart';
+import 'package:notepad_weather/network/api/weather/weather.dart';
+import 'package:notepad_weather/network/model/weather/weather_entity.dart';
 
 class HomePageService {
   final DateTime dateTimeNow = DateTime.now();
   final List<CardMonth> cardMonth = [];
+  Dio dio = Dio();
+  late Weather weather;
+
+  Future<WeatherEntity> getWeather() {
+    weather = Weather(dio);
+    return weather.getWeatherWeek(
+      12,
+      12,
+      'temperature_2m,cloud_cover_high',
+      'apparent_temperature_max,apparent_temperature_min',
+      'jma_seamless',
+    );
+  }
 
   void initial(BuildContext context) {
-    for (int i = dateTimeNow.month - 5; i != dateTimeNow.month + 5; ++i) {
+    for (var i = dateTimeNow.month - 5; i != dateTimeNow.month + 5; ++i) {
       cardMonth.add(
         CardMonth(
           listDate: generateDateBlock(dateTimeNow, i, context),
@@ -17,15 +34,17 @@ class HomePageService {
     }
   }
 
-  List<Widget> generateDateBlock(
+  Future<List<Widget>> generateDateBlock(
     DateTime dateTimeNow,
     int month,
     BuildContext context,
-  ) {
-    List<Widget> listDate = [];
-    DateTime dateTime = DateTime(dateTimeNow.year, month, 1);
-    int dayInMonth = DateTime(dateTimeNow.year, month + 1, 0).day;
-    int firstDayWeek = dateTime.weekday;
+  ) async {
+    final listDate = <Widget>[];
+    final dateTime = DateTime(dateTimeNow.year, month, 1);
+    final dayInMonth = DateTime(dateTimeNow.year, month + 1, 0).day;
+    final firstDayWeek = dateTime.weekday;
+    final weatherEntity = await getWeather();
+    Image? weatherIco;
 
     //add empty date
     if (firstDayWeek != 1) {
@@ -36,27 +55,33 @@ class HomePageService {
     listDate.addAll(
       List.generate(
         dayInMonth,
-        (index) => InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const ViewDate(),
-                settings: RouteSettings(
-                  arguments: Date(
-                    day: index + 1,
-                    month: month % 12 == 0 ? 12 : month % 12,
-                    year: dateTimeNow.year,
-                  ),
-                ),
-              ),
+        (index) {
+          final date = Date(
+            day: index + 1,
+            month: month % 12 == 0 ? 12 : month % 12,
+            year: dateTimeNow.year,
+          );
+          for (var i = 0; i < weatherEntity.hourly.time.length; ++i) {
+            final dateTime = DateTime.parse(weatherEntity.hourly.time[i]);
+            final weatherDate = Date(
+              day: dateTime.day,
+              month: dateTime.month,
+              year: dateTime.year,
             );
-          },
-          child: Container(
-            color: Colors.blue,
-            child: Text("${index + 1}"),
-          ),
-        ),
+
+            if (date.day == weatherDate.day &&
+                date.month == weatherDate.month &&
+                date.year == weatherDate.year) {
+              weatherIco = Image.asset(Assets.assetImageFreeIconSun4814268);
+            }
+          }
+          return DateBlock(
+            // temperatureMax:
+            // temperatureMin:
+            weatherIco: weatherIco,
+            date: date,
+          );
+        },
       ),
     );
 

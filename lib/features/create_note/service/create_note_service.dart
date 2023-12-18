@@ -1,126 +1,138 @@
+import 'dart:collection';
+import 'dart:core';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:notepad_weather/features/create_note/bloc/note_bloc.dart';
+import 'package:notepad_weather/features/create_note/widget/drag_image.dart';
+import 'package:notepad_weather/features/create_note/widget/drag_target_text.dart';
+import 'package:notepad_weather/features/create_note/widget/image_picker_dialog.dart';
 
 class CreateNoteService {
-  final List<Widget> dataList = [];
-  final textController = TextEditingController();
-  late final Widget textField;
-  late File? pickedImageFile;
-  late BuildContext context;
+  static CreateNoteService? _instance;
 
-  void init(BuildContext context) {
-    this.context = context;
+  CreateNoteService._();
 
-    //todo перемещение каретки ввода за указателем в конец строки или текст
-    void moveCursor(BuildContext context, Offset localPosition) {
-      int localPos = (localPosition.dy).toInt();
-
-      if (localPos <= textController.text.length && localPos >= 0) {
-        textController.text.substring(0, localPos).split('\n').length;
-
-        int startOfNextLine = textController.text.indexOf('\n', localPos);
-        if (startOfNextLine == -1) {
-          startOfNextLine = textController.text.length;
-        }
-
-        TextSelection newSelection = TextSelection.collapsed(
-          offset: startOfNextLine,
-        );
-
-        textController.selection = newSelection;
-      }
-    }
-
-    FocusNode focusNode = FocusNode();
-    textField = SizedBox(
-      child: DragTarget<String>(
-        onMove: (details) {
-          //todo вычисление координат для перемещения каретки ввода
-          // double globalX = details.offset.dx;
-          // double globalY = details.offset.dy;
-          //
-          // RenderBox renderBox = context.findRenderObject() as RenderBox;
-          // Offset localOffset = renderBox.globalToLocal(Offset(globalX, globalY));
-
-          print("globalOffset=> ${details.offset}, localOffset => ");
-        },
-        builder: (context, candidateData, rejectedData) {
-          return TextField(
-            focusNode: focusNode,
-            onChanged: (details) {
-              debugPrint(details.runes.string);
-            },
-            // key: textFieldKey,
-            controller: textController,
-            maxLines: null,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-            ),
-          );
-        },
-      ),
-    );
-
-    dataList.add(textField);
+  static CreateNoteService get instance {
+    _instance ??= CreateNoteService._();
+    return _instance!;
   }
 
-  void addImage(File pickedImage) {
-    Offset dragAnchorStrategy(
-        Draggable<Object> d, BuildContext context, Offset point) {
-      return Offset(d.feedbackOffset.dx + 70, d.feedbackOffset.dy + 70);
-    }
+  final LinkedHashMap<Key, Widget> _dataMap = LinkedHashMap<Key, Widget>();
 
-    dataList.addAll([
-      LongPressDraggable(
-        dragAnchorStrategy: dragAnchorStrategy,
-        // feedbackOffset: Offset(70, 70),
-        // key: key,
-        data: 'Drag me!',
-        onDragUpdate: (details) {},
-        feedback: Opacity(
-          opacity: 0.6,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: SizedBox(
-              width: 140,
-              height: 140,
-              child: Image.file(
-                pickedImage,
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-        ),
-        child: Image.file(pickedImage),
-      ),
-      textField,
-    ]);
+  late BuildContext context;
+  int index = 0;
+  late NoteBloc bloc;
+
+  void insert(String secondString, int index, Key key) {
+    final image = _dataMap.remove(key)!;
+
+    final dragTarget = DragTargetText(
+      str: secondString,
+      key: UniqueKey(),
+    );
+
+    final entriesList = _dataMap.entries.toList().sublist(0, index - 1);
+    final newDataMap = Map.fromEntries(entriesList);
+    newDataMap[image.key!] = image;
+    newDataMap[dragTarget.key!] = dragTarget;
+    final entriesList2 = _dataMap.entries
+        .toList()
+        .sublist(_dataMap.length > index ? index : index - 1, _dataMap.length);
+    newDataMap.addAll(Map.fromEntries(entriesList2));
+
+    _dataMap
+      ..clear()
+      ..addAll(newDataMap);
+
+    bloc.add(UpdateNoteEvent(this, 1));
+  }
+
+  List<Widget> getList() {
+    return _dataMap.values.toList();
+  }
+
+  int getIndexByKey(Key key) {
+    return _dataMap.keys.toList().indexOf(key);
+  }
+
+  Widget? getByIndex(int index) {
+    return _dataMap.values.toList()[index];
+  }
+
+  Widget? getByKey(Key key) {
+    return _dataMap[key];
+  }
+
+  String split(int newPosition, TextEditingController textController) {
+    String str = textController.text.substring(newPosition);
+    textController.text = textController.text.substring(0, newPosition);
+    return str;
+  }
+
+  void init(BuildContext context, NoteBloc bloc) {
+    this.context = context;
+    this.bloc = bloc;
+    if (_dataMap.length == 0) {
+      final Widget dragTargetText = DragTargetText(
+        key: UniqueKey(),
+      );
+      _dataMap[dragTargetText.key!] = dragTargetText;
+      debugPrint("${dragTargetText.key!}");
+    }
+  }
+
+  int moveCursor(
+    Offset localPosition,
+    Size size,
+    TextEditingController textController,
+  ) {
+    final localPosDy = localPosition.dy;
+    final numLines = textController.text.split('\n').length;
+    final pixelsInLine = size.height / numLines;
+    final calculatedLine = localPosDy / pixelsInLine;
+
+    //переносим коретку на нужную линию и в конец строки
+    final newPosition = textController.text
+            .split('\n')
+            .sublist(0, calculatedLine.toInt() + 1)
+            .fold<int>(0, (prev, element) => prev + element.length + 1) -
+        1;
+
+    final newSelection = TextSelection.collapsed(
+      offset: newPosition,
+    );
+    textController.selection = newSelection;
+
+    return newPosition;
+  }
+
+  Future<void> addImage(File pickedImage) async {
+    final Widget draggableImage = DraggableImage(
+      key: UniqueKey(),
+      pickedImage: pickedImage,
+    );
+    _dataMap[draggableImage.key!] = draggableImage;
+
+    final Widget dragTargetText = DragTargetText(
+      key: UniqueKey(),
+    );
+    _dataMap[dragTargetText.key!] = dragTargetText;
+    bloc.add(UpdateNoteEvent(this, 1));
   }
 
   Future<XFile?> showImageSourceDialog(BuildContext context) async {
-    ImageSource? source = await showDialog<ImageSource>(
+    final source = await showDialog<ImageSource>(
       context: context,
-      builder: (context) => AlertDialog(
-        content: const Text('Choose image source'),
-        actions: [
-          ElevatedButton(
-            child: const Text('Camera'),
-            onPressed: () => Navigator.pop(context, ImageSource.camera),
-          ),
-          ElevatedButton(
-            child: const Text('Gallery'),
-            onPressed: () => Navigator.pop(context, ImageSource.gallery),
-          ),
-        ],
-      ),
+      builder: (context) => const ImagePickerDialog(),
     );
 
-    if (source == null) return null;
+    if (source == null) {
+      return null;
+    }
 
     final pickedFile = await ImagePicker().pickImage(source: source);
-    if (pickedFile == null) return null;
 
     return pickedFile;
   }

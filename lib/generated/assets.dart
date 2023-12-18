@@ -2,5 +2,14 @@
 class Assets {
   Assets._();
 
-  static const String halfMoon = 'asset/image/half_moon.png';
+  static const String assetImageFreeIconCloudy1163661 =
+      'asset/image/free-icon-cloudy-1163661.png';
+  static const String assetImageFreeIconSun4814268 =
+      'asset/image/free-icon-sun-4814268.png';
+  static const String assetImageHalfMoon = 'asset/image/half_moon.png';
+  static const String imageFreeIconCloudy1163661 =
+      'asset/image/free-icon-cloudy-1163661.png';
+  static const String imageFreeIconSun4814268 =
+      'asset/image/free-icon-sun-4814268.png';
+  static const String imageHalfMoon = 'asset/image/half_moon.png';
 }
