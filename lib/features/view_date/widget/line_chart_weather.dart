@@ -5,13 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:notepad_weather/network/model/weather_current_day/weather_current_day.dart';
 
 class LineChartWeather extends StatelessWidget {
-  LineChartWeather({super.key, required this.weatherCurrentDay});
+  LineChartWeather({required this.weatherCurrentDay, super.key});
 
   final WeatherCurrentDay weatherCurrentDay;
 
-  // final spots = List.generate(24, (hour) => hour.toDouble())
-  //     .map((x) => FlSpot(x, cos(x)))
-  //     .toList();
   final List<Color> gradientColors = [
     Colors.deepPurple,
     Colors.yellow,
@@ -49,17 +46,17 @@ class LineChartWeather extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<FlSpot> spots = [];
-    List<double> temperature2mList = weatherCurrentDay.hourly!.temperature_2m!;
+    final spots = <FlSpot>[];
+    final temperature2mList = weatherCurrentDay.hourly!.temperature_2m;
 
-    for (int x = 0; x < temperature2mList.length; ++x) {
+    for (var x = 0; x < temperature2mList!.length; ++x) {
       spots.add(FlSpot(x.toDouble(), temperature2mList[x]));
     }
 
-    double maxY = temperature2mList
+    final maxY = temperature2mList
             .reduce((value, element) => value > element ? value : element) +
         1;
-    double minY = temperature2mList
+    final minY = temperature2mList
             .reduce((value, element) => value > element ? element : value) -
         1;
 
@@ -136,7 +133,10 @@ class LineChartWeather extends StatelessWidget {
                         sideTitles: SideTitles(
                           showTitles: true,
                           getTitlesWidget: (value, meta) => leftTitleWidgets(
-                              value, meta, constraints.maxWidth),
+                            value,
+                            meta,
+                            constraints.maxWidth,
+                          ),
                           reservedSize: 56,
                           interval:
                               (((maxY - minY) - ((maxY - minY) / 2).round()) /
@@ -153,7 +153,10 @@ class LineChartWeather extends StatelessWidget {
                         sideTitles: SideTitles(
                           showTitles: true,
                           getTitlesWidget: (value, meta) => bottomTitleWidgets(
-                              value, meta, constraints.maxWidth),
+                            value,
+                            meta,
+                            constraints.maxWidth,
+                          ),
                           reservedSize: 36,
                           interval: 4,
                         ),

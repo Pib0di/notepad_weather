@@ -1,98 +1,114 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:notepad_weather/features/create_note/service/create_note_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:notepad_weather/features/create_note/bloc/note_bloc.dart';
 
 class CreateNote extends StatefulWidget {
-  const CreateNote({super.key});
+  CreateNote({super.key});
+  final NoteBloc bloc = NoteBloc();
 
   @override
   State<CreateNote> createState() => _CreateNoteState();
 }
 
 class _CreateNoteState extends State<CreateNote> {
-  final createNoteService = CreateNoteService();
-
-  late TextEditingController textController;
-
   @override
   void initState() {
+    widget.bloc.state.service.init(context, widget.bloc);
     super.initState();
-    createNoteService.init(context);
-
-    textController = createNoteService.textController;
-    textController.text =
-        " 🧭 🏳️\u200d🌈 a;sldkfj  🧭 🏳️\u200d🌈 \n asdflkajsd;lfk jas;dlfk jas;dlf jas;ldf kja'sl";
   }
 
   @override
   void dispose() {
-    textController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("создание заметки"),
-        leading: IconButton(
+    return BlocListener<NoteBloc, NoteState>(
+      bloc: widget.bloc,
+      listener: (context, state) {
+        if (state is UpdatedNoteState) {
+          setState(() {});
+        }
+      },
+      child: Scaffold(
+        floatingActionButton: FloatingActionButton(
           onPressed: () {
-            Navigator.pop(context);
+            // bloc.add(UpdateNoteEvent(bloc.state.service ,bloc.state.height));
           },
-          icon: const Icon(Icons.arrow_back_outlined),
+          child: Text("${widget.bloc.state.height}"),
         ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.more_vert_outlined),
-          ),
-        ],
-      ),
-      bottomNavigationBar: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.radio_button_checked_outlined),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.photo_camera_outlined),
-            onPressed: () async {
-              final pickedImage =
-                  await createNoteService.showImageSourceDialog(context);
-
-              if (pickedImage != null) {
-                setState(() {
-                  createNoteService.addImage(
-                    File(pickedImage.path),
-                  );
-                });
-              } else {
-                //todo изображение не выбрано
-                print('изображение не выбрано');
-              }
+        appBar: AppBar(
+          title: const Text('создание заметки'),
+          leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
             },
+            icon: const Icon(Icons.arrow_back_outlined),
           ),
-          IconButton(
-            icon: const Icon(Icons.draw_outlined),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.mic_none_rounded),
-            onPressed: () {},
-          ),
-        ],
-      ),
-      body: ListView(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Column(
-              children: createNoteService.dataList,
+          actions: [
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.more_vert_outlined),
             ),
+          ],
+        ),
+        bottomNavigationBar: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.radio_button_checked_outlined),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: const Icon(Icons.photo_camera_outlined),
+              onPressed: () async {
+                final pickedImage = await widget.bloc.state.service
+                    .showImageSourceDialog(context);
+
+                if (pickedImage != null) {
+                  setState(() {
+                    widget.bloc.state.service.addImage(
+                      File(pickedImage.path),
+                    );
+                  });
+                } else {
+                  //todo изображение не выбрано
+                  debugPrint('изображение не выбрано');
+                }
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.draw_outlined),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: const Icon(Icons.mic_none_rounded),
+              onPressed: () {},
+            ),
+          ],
+        ),
+        body: BlocListener<NoteBloc, NoteState>(
+          bloc: widget.bloc,
+          listener: (context, state) {
+            if (state is UpdatedNoteState) {
+              setState(() {});
+            }
+          },
+          child: ListView(
+            key: UniqueKey(),
+            shrinkWrap: true,
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                // children: bloc.state.service.dataList,
+                children: widget.bloc.state.service.getList(),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

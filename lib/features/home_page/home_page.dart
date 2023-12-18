@@ -1,6 +1,10 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:notepad_weather/features/create_note/create_note.dart';
+import 'package:notepad_weather/features/home_page/bloc/home_page_bloc.dart';
 import 'package:notepad_weather/features/home_page/service/home_page_service.dart';
+import 'package:notepad_weather/network/api/weather/weather.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,10 +16,18 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final HomePageService homePageService = HomePageService();
 
+  late final HomePageBloc bloc = HomePageBloc();
+
+  late Dio dio;
+  late Weather weather;
+
   @override
   void initState() {
-    super.initState();
+    dio = Dio();
+    weather = Weather(dio);
     homePageService.initial(context);
+
+    super.initState();
   }
 
   @override
@@ -39,23 +51,29 @@ class _HomePageState extends State<HomePage> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const CreateNote()),
+            MaterialPageRoute(builder: (context) => CreateNote()),
           );
         },
         child: const Icon(Icons.add),
       ),
-      body: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: homePageService.cardMonth.length,
-          padding: const EdgeInsets.all(8.0),
-          controller: ScrollController(
-            //todo сделать чтобы список скролился с середины (GlobalKey or Bloc)
-            // middle of the list
-            initialScrollOffset: (homePageService.cardMonth.length * 402) / 2,
-          ),
-          itemBuilder: (BuildContext context, int index) {
-            return homePageService.cardMonth[index];
-          }),
+      body: BlocBuilder<HomePageBloc, HomePageState>(
+        bloc: bloc,
+        builder: (context, state) {
+          return ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: homePageService.cardMonth.length,
+            padding: const EdgeInsets.all(8.0),
+            controller: ScrollController(
+              //todo сделать чтобы список скролился с середины (GlobalKey or Bloc)
+              // middle of the list
+              initialScrollOffset: (homePageService.cardMonth.length * 402) / 2,
+            ),
+            itemBuilder: (BuildContext context, int index) {
+              return homePageService.cardMonth[index];
+            },
+          );
+        },
+      ),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:notepad_weather/network/model/weather/weather_entity.dart';
 import 'package:notepad_weather/network/model/weather_current_day/weather_current_day.dart';
 import 'package:retrofit/http.dart';
 
@@ -15,5 +16,14 @@ abstract class Weather {
     @Query('hourly') String? hourly,
     @Query('models') String models,
     @Query('forecast_days') int forecastDays,
+  );
+
+  @GET('/forecast')
+  Future<WeatherEntity> getWeatherWeek(
+    @Query('latitude') int? latitude,
+    @Query('longitude') int? longitude,
+    @Query('hourly') String? hourly,
+    @Query('daily') String? daily,
+    @Query('models') String models,
   );
 }
