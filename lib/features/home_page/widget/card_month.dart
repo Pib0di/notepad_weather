@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:notepad_weather/features/home_page/widget/date_block.dart';
 
 class CardMonth extends StatelessWidget {
-  const CardMonth({required this.listDate, required this.monthName, super.key});
+  const CardMonth({
+    required this.listDateBlock,
+    required this.monthName,
+    required this.date,
+    super.key,
+  });
 
+  final DateTime date;
   final String monthName;
-  final Future<List<Widget>> listDate;
+  final List<DateBlock> listDateBlock;
 
   @override
   Widget build(BuildContext context) {
@@ -12,35 +19,19 @@ class CardMonth extends StatelessWidget {
       children: [
         Text(monthName),
         Expanded(
-          child: AspectRatio(
-            aspectRatio: 0.9,
-            child: FutureBuilder<List<Widget>>(
-              future: listDate,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return Text('Ошибка: ${snapshot.error}');
-                } else {
-                  return GridView.count(
-                    mainAxisSpacing: 5,
-                    crossAxisSpacing: 5,
-                    crossAxisCount: 7,
-                    scrollDirection: Axis.horizontal,
-                    children: snapshot.data!,
-                  );
-                  // Text('Данные: ${snapshot.data!.hourly!.temperature_2m}');
-                }
-              },
-            ),
-
-            // GridView.count(
-            //   mainAxisSpacing: 2,
-            //   crossAxisSpacing: 2,
-            //   crossAxisCount: 7,
-            //   scrollDirection: Axis.horizontal,
-            //   children: listDate,
-            // ),
+          child: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              return AspectRatio(
+                aspectRatio: 0.9,
+                child: GridView.count(
+                  mainAxisSpacing: 5,
+                  crossAxisSpacing: 5,
+                  crossAxisCount: 7,
+                  scrollDirection: Axis.horizontal,
+                  children: listDateBlock,
+                ),
+              );
+            },
           ),
         ),
       ],

@@ -4,3 +4,5 @@ part of 'home_page_bloc.dart';
 abstract class HomePageEvent {}
 
 final class GetWeatherPeriod extends HomePageEvent {}
+
+final class Increment extends HomePageEvent {}

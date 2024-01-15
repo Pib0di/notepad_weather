@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "121106493217",
+    "project_id": "notepad-weather",
+    "storage_bucket": "notepad-weather.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:121106493217:android:55e46186047097613f9860",
+        "android_client_info": {
+          "package_name": "com.example.notepad_weather"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "121106493217-9rr4jk6mktqgh618256u58rqot7adk5o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLVTEGMzeEiH6Wq55HSa_kz-vVLwDw-1Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "121106493217-9rr4jk6mktqgh618256u58rqot7adk5o.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "121106493217-8cojobaklnd49css0qnpdp3pqc3kv99n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.notepadWeather.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

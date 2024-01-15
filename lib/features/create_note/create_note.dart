@@ -16,6 +16,7 @@ class _CreateNoteState extends State<CreateNote> {
   @override
   void initState() {
     widget.bloc.state.service.init(context, widget.bloc);
+
     super.initState();
   }
 
@@ -38,7 +39,7 @@ class _CreateNoteState extends State<CreateNote> {
           onPressed: () {
             // bloc.add(UpdateNoteEvent(bloc.state.service ,bloc.state.height));
           },
-          child: Text("${widget.bloc.state.height}"),
+          child: Text('${widget.bloc.state.height}'),
         ),
         appBar: AppBar(
           title: const Text('создание заметки'),

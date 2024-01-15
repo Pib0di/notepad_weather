@@ -2,6 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'weather_current_day.g.dart';
 
+///Погода на текущий день...
 @JsonSerializable()
 class WeatherCurrentDay {
   const WeatherCurrentDay({

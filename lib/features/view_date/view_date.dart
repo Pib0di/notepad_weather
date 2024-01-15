@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:notepad_weather/features/home_page/service/home_page_service.dart';
 import 'package:notepad_weather/features/view_date/widget/line_chart_weather.dart';
 import 'package:notepad_weather/network/api/weather/weather.dart';
 import 'package:notepad_weather/network/model/weather_current_day/weather_current_day.dart';
@@ -15,17 +14,27 @@ class ViewDate extends StatefulWidget {
 class _ViewDateState extends State<ViewDate> {
   late Dio dio;
   late Weather weather;
+  late Future<WeatherCurrentDay> weatherCurrentDay;
 
   @override
   void initState() {
     dio = Dio();
     weather = Weather(dio);
+
+    weatherCurrentDay = weather.getWeatherCurrentDay(
+      12,
+      12,
+      'temperature_2m,cloud_cover_high,uv_index',
+      'jma_seamless',
+      1,
+    );
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final date = ModalRoute.of(context)!.settings.arguments as Date;
+    final date = ModalRoute.of(context)!.settings.arguments as DateTime;
 
     return Scaffold(
       backgroundColor: const Color(0xFF282E45),
@@ -61,13 +70,7 @@ class _ViewDateState extends State<ViewDate> {
           Column(
             children: [
               FutureBuilder<WeatherCurrentDay>(
-                future: weather.getWeatherCurrentDay(
-                  12,
-                  12,
-                  'temperature_2m,cloud_cover_high,uv_index',
-                  'jma_seamless',
-                  1,
-                ),
+                future: weatherCurrentDay,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const CircularProgressIndicator();

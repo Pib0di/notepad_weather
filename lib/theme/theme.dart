@@ -14,7 +14,7 @@ ThemeData themeData = ThemeData(
   ),
   // scaffoldBackgroundColor: const Color(0xFF282E45),
   // scaffoldBackgroundColor: const Color(0xFF282E45),
-  appBarTheme: AppBarTheme(
+  appBarTheme: const AppBarTheme(
       // color: Colors.cyanAccent,
       ),
   // textTheme: const TextTheme(

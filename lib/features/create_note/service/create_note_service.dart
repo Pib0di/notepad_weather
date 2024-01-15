@@ -66,7 +66,7 @@ class CreateNoteService {
   }
 
   String split(int newPosition, TextEditingController textController) {
-    String str = textController.text.substring(newPosition);
+    final str = textController.text.substring(newPosition);
     textController.text = textController.text.substring(0, newPosition);
     return str;
   }
@@ -74,12 +74,12 @@ class CreateNoteService {
   void init(BuildContext context, NoteBloc bloc) {
     this.context = context;
     this.bloc = bloc;
-    if (_dataMap.length == 0) {
+    if (_dataMap.isEmpty) {
       final Widget dragTargetText = DragTargetText(
         key: UniqueKey(),
       );
       _dataMap[dragTargetText.key!] = dragTargetText;
-      debugPrint("${dragTargetText.key!}");
+      debugPrint('${dragTargetText.key!}');
     }
   }
 

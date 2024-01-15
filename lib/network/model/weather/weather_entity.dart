@@ -4,6 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'weather_entity.g.dart';
 
+///Актуальная погода на 7-16 дней
 @JsonSerializable()
 class WeatherEntity {
   late double latitude;

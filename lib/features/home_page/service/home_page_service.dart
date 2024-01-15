@@ -1,5 +1,8 @@
+import 'dart:collection';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:notepad_weather/features/home_page/bloc/home_page_bloc.dart';
 import 'package:notepad_weather/features/home_page/widget/card_month.dart';
 import 'package:notepad_weather/features/home_page/widget/date_block.dart';
 import 'package:notepad_weather/generated/assets.dart';
@@ -7,12 +10,26 @@ import 'package:notepad_weather/network/api/weather/weather.dart';
 import 'package:notepad_weather/network/model/weather/weather_entity.dart';
 
 class HomePageService {
+  // Приватное статическое поле, которое хранит экземпляр синглтона
+  static final HomePageService _singleton = HomePageService._internal();
+
+  // Приватный конструктор, который вызывается только внутри класса
+  HomePageService._internal();
+
+  // Фабричный конструктор, возвращающий экземпляр синглтона
+  factory HomePageService() {
+    return _singleton;
+  }
+
   final DateTime dateTimeNow = DateTime.now();
-  final List<CardMonth> cardMonth = [];
+  final LinkedHashMap<DateTime, CardMonth> cardMonth =
+      LinkedHashMap<DateTime, CardMonth>();
   Dio dio = Dio();
   late Weather weather;
+  ScrollController? scrollController;
+  late HomePageBloc bloc;
 
-  Future<WeatherEntity> getWeather() {
+  Future<WeatherEntity> getWeatherWeek() {
     weather = Weather(dio);
     return weather.getWeatherWeek(
       12,
@@ -23,64 +40,95 @@ class HomePageService {
     );
   }
 
-  void initial(BuildContext context) {
+  void addWeather(WeatherEntity result) {
+    for (var i = 0; i < result.daily.time.length; ++i) {
+      final dateTime = DateTime.parse(result.daily.time[i]);
+      final findDateTime = DateTime(
+        dateTime.year,
+        dateTime.month,
+        1,
+      );
+
+      if (!cardMonth.containsKey(findDateTime)) {
+        continue;
+      }
+
+      //add empty date
+      final findDay = dateTime.day - 1;
+
+      final cardMonthTemp = CardMonth(
+        key: UniqueKey(),
+        listDateBlock: cardMonth[findDateTime]!.listDateBlock,
+        monthName: cardMonth[findDateTime]!.monthName,
+        date: cardMonth[findDateTime]!.date,
+      );
+
+      cardMonthTemp.listDateBlock[findDay] = DateBlock(
+        temperatureMax: result.daily.apparentTemperatureMax[i].toInt(),
+        temperatureMin: result.daily.apparentTemperatureMin[i].toInt(),
+        weatherIco: Image.asset(Assets.assetImageFreeIconSun4814268),
+        date: dateTime,
+      );
+      cardMonth[findDateTime] = cardMonthTemp;
+    }
+    bloc.add(Increment());
+  }
+
+  void initial(BuildContext context, HomePageBloc bloc) {
+    this.bloc = bloc;
+    getWeatherWeek().then(addWeather);
     for (var i = dateTimeNow.month - 5; i != dateTimeNow.month + 5; ++i) {
-      cardMonth.add(
-        CardMonth(
-          listDate: generateDateBlock(dateTimeNow, i, context),
+      final dateTime = DateTime(dateTimeNow.year, i);
+      cardMonth.putIfAbsent(
+        dateTime,
+        () => CardMonth(
+          date: dateTime,
+          listDateBlock: generateDateBlock(dateTime, i),
           monthName: getMonthName(i % 12 == 0 ? 12 : i % 12),
         ),
       );
     }
   }
 
-  Future<List<Widget>> generateDateBlock(
-    DateTime dateTimeNow,
+  void addCardMonth() {
+    final nextDate = DateTime(
+      cardMonth.values.last.date.year,
+      cardMonth.values.last.date.month + 1,
+    );
+    cardMonth.putIfAbsent(
+      nextDate,
+      () => CardMonth(
+        listDateBlock: generateDateBlock(nextDate, nextDate.month),
+        date: nextDate,
+        monthName: getMonthName(nextDate.month),
+      ),
+    );
+  }
+
+  List<DateBlock> generateDateBlock(
+    DateTime dateTime,
     int month,
-    BuildContext context,
-  ) async {
-    final listDate = <Widget>[];
-    final dateTime = DateTime(dateTimeNow.year, month, 1);
-    final dayInMonth = DateTime(dateTimeNow.year, month + 1, 0).day;
+  ) {
+    final listDate = <DateBlock>[];
+    final dayInMonth = DateTime(dateTime.year, month + 1, 0).day;
     final firstDayWeek = dateTime.weekday;
-    final weatherEntity = await getWeather();
-    Image? weatherIco;
+    // final weatherWeek = await getWeatherWeek();
 
     //add empty date
     if (firstDayWeek != 1) {
-      listDate.addAll(
-        List.generate(firstDayWeek - 1, (index) => const SizedBox()),
-      );
+      listDate.addAll(List.generate(
+          firstDayWeek - 1, (index) => const DateBlock(date: null),),);
     }
     listDate.addAll(
       List.generate(
         dayInMonth,
         (index) {
-          final date = Date(
-            day: index + 1,
-            month: month % 12 == 0 ? 12 : month % 12,
-            year: dateTimeNow.year,
+          final date = DateTime(
+            dateTime.year,
+            month % 12 == 0 ? 12 : month % 12,
+            index + 1,
           );
-          for (var i = 0; i < weatherEntity.hourly.time.length; ++i) {
-            final dateTime = DateTime.parse(weatherEntity.hourly.time[i]);
-            final weatherDate = Date(
-              day: dateTime.day,
-              month: dateTime.month,
-              year: dateTime.year,
-            );
-
-            if (date.day == weatherDate.day &&
-                date.month == weatherDate.month &&
-                date.year == weatherDate.year) {
-              weatherIco = Image.asset(Assets.assetImageFreeIconSun4814268);
-            }
-          }
-          return DateBlock(
-            // temperatureMax:
-            // temperatureMin:
-            weatherIco: weatherIco,
-            date: date,
-          );
+          return DateBlock(date: date);
         },
       ),
     );
@@ -118,16 +166,4 @@ class HomePageService {
         return '';
     }
   }
-}
-
-class Date {
-  const Date({
-    required this.day,
-    required this.month,
-    required this.year,
-  });
-
-  final int day;
-  final int month;
-  final int year;
 }
