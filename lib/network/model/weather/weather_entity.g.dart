@@ -16,10 +16,12 @@ WeatherEntity _$WeatherEntityFromJson(Map<String, dynamic> json) =>
       ..timezoneAbbreviation = json['timezone_abbreviation'] as String
       ..elevation = (json['elevation'] as num).toDouble()
       ..hourlyUnits = WeatherHourlyUnits.fromJson(
-          json['hourly_units'] as Map<String, dynamic>)
+        json['hourly_units'] as Map<String, dynamic>,
+      )
       ..hourly = WeatherHourly.fromJson(json['hourly'] as Map<String, dynamic>)
       ..dailyUnits = WeatherDailyUnits.fromJson(
-          json['daily_units'] as Map<String, dynamic>)
+        json['daily_units'] as Map<String, dynamic>,
+      )
       ..daily = WeatherDaily.fromJson(json['daily'] as Map<String, dynamic>);
 
 Map<String, dynamic> _$WeatherEntityToJson(WeatherEntity instance) =>

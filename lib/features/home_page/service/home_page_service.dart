@@ -116,8 +116,12 @@ class HomePageService {
 
     //add empty date
     if (firstDayWeek != 1) {
-      listDate.addAll(List.generate(
-          firstDayWeek - 1, (index) => const DateBlock(date: null),),);
+      listDate.addAll(
+        List.generate(
+          firstDayWeek - 1,
+          (index) => const DateBlock(date: null),
+        ),
+      );
     }
     listDate.addAll(
       List.generate(

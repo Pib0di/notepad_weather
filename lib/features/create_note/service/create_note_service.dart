@@ -75,7 +75,7 @@ class CreateNoteService {
     this.context = context;
     this.bloc = bloc;
     if (_dataMap.isEmpty) {
-      final Widget dragTargetText = DragTargetText(
+      final dragTargetText = DragTargetText(
         key: UniqueKey(),
       );
       _dataMap[dragTargetText.key!] = dragTargetText;
@@ -109,13 +109,13 @@ class CreateNoteService {
   }
 
   Future<void> addImage(File pickedImage) async {
-    final Widget draggableImage = DraggableImage(
+    final draggableImage = DraggableImage(
       key: UniqueKey(),
       pickedImage: pickedImage,
     );
     _dataMap[draggableImage.key!] = draggableImage;
 
-    final Widget dragTargetText = DragTargetText(
+    final dragTargetText = DragTargetText(
       key: UniqueKey(),
     );
     _dataMap[dragTargetText.key!] = dragTargetText;
