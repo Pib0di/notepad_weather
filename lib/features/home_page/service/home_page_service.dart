@@ -90,27 +90,6 @@ class HomePageService {
     }
   }
 
-<<<<<<< HEAD
-  List<Widget> generateDateBlock(int firstDayWeek, int dayInMonth) {
-    List<Widget> listDate = [];
-
-    //add empty date
-    if (firstDayWeek != 1) {
-      listDate
-          .addAll(List.generate(firstDayWeek - 1, (index) => const SizedBox()));
-    }
-
-    listDate.addAll(
-      List.generate(
-        dayInMonth,
-        (index) => InkWell(
-          onTap: () {},
-          child: Container(
-            color: Colors.blue,
-            child: Text("${index + 1}"),
-          ),
-        ),
-=======
   void addCardMonth() {
     final nextDate = DateTime(
       cardMonth.values.last.date.year,
@@ -137,8 +116,12 @@ class HomePageService {
 
     //add empty date
     if (firstDayWeek != 1) {
-      listDate.addAll(List.generate(
-          firstDayWeek - 1, (index) => const DateBlock(date: null),),);
+      listDate.addAll(
+        List.generate(
+          firstDayWeek - 1,
+          (index) => const DateBlock(date: null),
+        ),
+      );
     }
     listDate.addAll(
       List.generate(
@@ -151,7 +134,6 @@ class HomePageService {
           );
           return DateBlock(date: date);
         },
->>>>>>> origin/hw_5_bloc
       ),
     );
 
