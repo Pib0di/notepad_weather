@@ -52,7 +52,6 @@ class _HomePageState extends State<HomePage> {
             homePageService.addCardMonth();
             setState(() {});
             // homePageService.bloc.add(Increment());
-            print(homePageService.cardMonth.length);
           }
         });
     });
@@ -131,7 +130,6 @@ class _HomePageState extends State<HomePage> {
       ),
       body: BlocBuilder<HomePageBloc, HomePageState>(
         builder: (context, state) {
-          print('update');
           return ListView.builder(
             key: _listKey,
             scrollDirection: Axis.horizontal,

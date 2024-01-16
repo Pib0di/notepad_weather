@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:notepad_weather/network/model/historical_weather/historical_entity.dart';
 import 'package:notepad_weather/network/model/historical_weather/historical_weather.dart';
 import 'package:notepad_weather/network/model/weather/weather_entity.dart';
 import 'package:notepad_weather/network/model/weather_current_day/weather_current_day.dart';
@@ -30,6 +31,15 @@ abstract class Weather {
 
   @GET('/forecast')
   Future<HistoricalWeather> getHistoricalWeather(
+    @Query('latitude') int? latitude,
+    @Query('longitude') int? longitude,
+    @Query('start_date') String? startDate,
+    @Query('end_date') String? endDate,
+    @Query('daily') String daily,
+  );
+
+  @GET('/forecast')
+  Future<HistoricalEntity> getHistorical(
     @Query('latitude') int? latitude,
     @Query('longitude') int? longitude,
     @Query('start_date') String? startDate,
